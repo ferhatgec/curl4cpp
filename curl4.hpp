@@ -331,6 +331,35 @@ namespace curl4 {
         };
 
         namespace ssl {
+            enum class CURL4SSL {
+                SET_OK,
+                SET_UNKNOWN_BACKEND,
+                SET_TOO_LATE,
+                SET_NO_BACKENDS
+            };
+
+            namespace match {
+                CURL4SSL to(CURLsslset val) noexcept {
+                    switch(val) {
+                        case CURLSSLSET_OK: {
+                            return CURL4SSL::SET_OK;
+                        }
+
+                        case CURLSSLSET_UNKNOWN_BACKEND: {
+                            return CURL4SSL::SET_UNKNOWN_BACKEND;
+                        }
+
+                        case CURLSSLSET_TOO_LATE: {
+                            return CURL4SSL::SET_TOO_LATE;
+                        }
+
+                        case CURLSSLSET_NO_BACKENDS: {
+                            return CURL4SSL::SET_NO_BACKENDS;
+                        }
+                    } return CURL4SSL::SET_NO_BACKENDS;
+                }
+            }
+
             curl_sslbackend from(SSLBackendTypes type) noexcept {
                 switch(type) {
                     case CURL4SSLBACKEND_NONE: {
@@ -387,8 +416,7 @@ namespace curl4 {
                 } return CURLSSLBACKEND_NONE;
             }
 
-
-            CURLsslset set(SSLBackendTypes __id, std::string name, SSLBackend*** __avail) noexcept {
+            CURL4SSL set(SSLBackendTypes __id, std::string name, SSLBackend*** __avail) noexcept {
                 auto __val = ***__avail;
                 
                 curl_ssl_backend*** val;
@@ -398,8 +426,8 @@ namespace curl4 {
                     .name = __val.name.c_str()
                 };
 
-                return curl_global_sslset(ssl::from(__id), 
-                                          name.c_str(), const_cast<const curl_ssl_backend***>(val));
+                return match::to(curl_global_sslset(ssl::from(__id),
+                                          name.c_str(), const_cast<const curl_ssl_backend***>(val)));
             }
         }
 
