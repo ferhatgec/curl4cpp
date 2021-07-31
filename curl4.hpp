@@ -523,8 +523,135 @@ namespace curl4 {
             MSG_LAST
         };
 
+        enum class CURL4MCodeType {
+            CALL_MULTI_PERFORM = -1,
+            OK,
+            BAD_HANDLE,
+            BAD_EASY_HANDLE,
+            OUT_OF_MEMORY,
+            INTERNAL_ERROR,
+            BAD_SOCKET,
+            UNKNOWN_OPTION,
+            ADDED_ALREADY,
+            RECURSIVE_API_CALL,
+            WAKEUP_FAILURE,
+            BAD_FUNCTION_ARGUMENT,
+            LAST
+        };
 
         namespace match {
+            __CURLMcode from(CURL4MCodeType val) noexcept {
+                switch(val) {
+                    case CURL4MCodeType::CALL_MULTI_PERFORM: {
+                        return CURLM_CALL_MULTI_PERFORM;
+                    }
+
+                    case CURL4MCodeType::OK: {
+                        return CURLM_OK;
+                    }
+
+                    case CURL4MCodeType::BAD_HANDLE: {
+                        return CURLM_BAD_HANDLE;
+                    }
+
+                    case CURL4MCodeType::BAD_EASY_HANDLE: {
+                        return CURLM_BAD_EASY_HANDLE;
+                    }
+
+                    case CURL4MCodeType::OUT_OF_MEMORY: {
+                        return CURLM_OUT_OF_MEMORY;
+                    }
+
+                    case CURL4MCodeType::INTERNAL_ERROR: {
+                        return CURLM_INTERNAL_ERROR;
+                    }
+
+                    case CURL4MCodeType::BAD_SOCKET: {
+                        return CURLM_BAD_SOCKET;
+                    }
+
+                    case CURL4MCodeType::UNKNOWN_OPTION: {
+                        return CURLM_UNKNOWN_OPTION;
+                    }
+
+                    case CURL4MCodeType::ADDED_ALREADY: {
+                        return CURLM_ADDED_ALREADY;
+                    }
+
+                    case CURL4MCodeType::RECURSIVE_API_CALL: {
+                        return CURLM_RECURSIVE_API_CALL;
+                    }
+
+                    case CURL4MCodeType::WAKEUP_FAILURE: {
+                        return CURLM_WAKEUP_FAILURE;
+                    }
+
+                    case CURL4MCodeType::BAD_FUNCTION_ARGUMENT: {
+                        return CURLM_BAD_FUNCTION_ARGUMENT;
+                    }
+
+                    case CURL4MCodeType::LAST: {
+                        return CURLM_LAST;
+                    }
+                } return CURLM_LAST;
+            }
+
+            CURL4MCodeType to(__CURLMcode val) noexcept {
+                switch(val) {
+                    case CURLM_CALL_MULTI_PERFORM: {
+                        return CURL4MCodeType::CALL_MULTI_PERFORM;
+                    }
+
+                    case CURLM_OK: {
+                        return CURL4MCodeType::OK;
+                    }
+
+                    case CURLM_BAD_HANDLE: {
+                        return CURL4MCodeType::BAD_HANDLE;
+                    }
+
+                    case CURLM_BAD_EASY_HANDLE: {
+                        return CURL4MCodeType::BAD_EASY_HANDLE;
+                    }
+
+                    case CURLM_OUT_OF_MEMORY: {
+                        return CURL4MCodeType::OUT_OF_MEMORY;
+                    }
+
+                    case CURLM_INTERNAL_ERROR: {
+                        return CURL4MCodeType::INTERNAL_ERROR;
+                    }
+
+                    case CURLM_BAD_SOCKET: {
+                        return CURL4MCodeType::BAD_SOCKET;
+                    }
+
+                    case CURLM_UNKNOWN_OPTION: {
+                        return CURL4MCodeType::UNKNOWN_OPTION;
+                    }
+
+                    case CURLM_ADDED_ALREADY: {
+                        return CURL4MCodeType::ADDED_ALREADY;
+                    }
+
+                    case CURLM_RECURSIVE_API_CALL: {
+                        return CURL4MCodeType::RECURSIVE_API_CALL;
+                    }
+
+                    case CURLM_WAKEUP_FAILURE: {
+                        return CURL4MCodeType::WAKEUP_FAILURE;
+                    }
+
+                    case CURLM_BAD_FUNCTION_ARGUMENT: {
+                        return CURL4MCodeType::BAD_FUNCTION_ARGUMENT;
+                    }
+
+                    case CURLM_LAST: {
+                        return CURL4MCodeType::LAST;
+                    }
+                } return CURL4MCodeType::LAST;
+            }
+
             __CURLMSG from(CURL4MsgType val) noexcept {
                 switch(val) {
                     case CURL4MsgType::MSG_NONE: {
@@ -581,25 +708,25 @@ namespace curl4 {
             ~CURL4Msg()= default;
         };
 
-        __CURLMcode add_handle(CURL4M& multi_handle, CURL4& handle) noexcept {
-            return curl_multi_add_handle(multi_handle.init, handle.init);
+        CURL4MCodeType add_handle(CURL4M& multi_handle, CURL4& handle) noexcept {
+            return match::to(curl_multi_add_handle(multi_handle.init, handle.init));
         }
 
         template<typename Param>
-        __CURLMcode assign(CURL4M& multi_handle, __curl_socket sockfd, Param arg) noexcept {
-            return curl_multi_assign(multi_handle.init, sockfd, arg);
+        CURL4MCodeType assign(CURL4M& multi_handle, __curl_socket sockfd, Param arg) noexcept {
+            return match::to(curl_multi_assign(multi_handle.init, sockfd, arg));
         }
 
-        __CURLMcode cleanup(CURL4M& multi_handle) noexcept {
-            return curl_multi_cleanup(multi_handle.init);
+        CURL4MCodeType cleanup(CURL4M& multi_handle) noexcept {
+            return match::to(curl_multi_cleanup(multi_handle.init));
         }
 
-        __CURLMcode fdset(CURL4M& multi_handle,
+        CURL4MCodeType fdset(CURL4M& multi_handle,
                           __fd_set* read_fd_set,
                           __fd_set* write_fd_set,
                           __fd_set* exc_fd_set,
                           int* max_fd) noexcept {
-            return curl_multi_fdset(multi_handle.init, read_fd_set, write_fd_set, exc_fd_set, max_fd);
+            return match::to(curl_multi_fdset(multi_handle.init, read_fd_set, write_fd_set, exc_fd_set, max_fd));
         }
 
         template<typename Value>
@@ -619,52 +746,52 @@ namespace curl4 {
             };
         }
 
-        __CURLMcode perform(CURL4M& multi_handle, int* running_handles) noexcept {
-            return curl_multi_perform(multi_handle.init, running_handles);
+        CURL4MCodeType perform(CURL4M& multi_handle, int* running_handles) noexcept {
+            return match::to(curl_multi_perform(multi_handle.init, running_handles));
         }
         
-        __CURLMcode remove_handle(CURL4M& mutli_handle, CURL4& handle) noexcept {
-            return curl_multi_remove_handle(mutli_handle.init, handle.init);
+        CURL4MCodeType remove_handle(CURL4M& mutli_handle, CURL4& handle) noexcept {
+            return match::to(curl_multi_remove_handle(mutli_handle.init, handle.init));
         }
 
         template<typename Param>
-        __CURLMcode setopt(CURL4M& multi_handle, __CURLMoption option, Param parameter) noexcept {
-            return curl_multi_setopt(multi_handle.init, option, parameter);
+        CURL4MCodeType setopt(CURL4M& multi_handle, __CURLMoption option, Param parameter) noexcept {
+            return match::to(curl_multi_setopt(multi_handle.init, option, parameter));
         }
 
-        __CURLMcode socket_action(CURL4M& multi_handle, 
+        CURL4MCodeType socket_action(CURL4M& multi_handle,
                                   __curl_socket sockfd, 
                                   int ev_bitmask, 
                                   int* running_handles) noexcept {
-            return curl_multi_socket_action(multi_handle.init, sockfd, ev_bitmask, running_handles);
+            return match::to(curl_multi_socket_action(multi_handle.init, sockfd, ev_bitmask, running_handles));
         }
 
         const std::string strerror(__CURLMcode error_num) noexcept {
             return std::string(curl_multi_strerror(error_num));
         }
 
-        __CURLMcode timeout(CURL4M& multi_handle, long* timeout) noexcept {
-            return curl_multi_timeout(multi_handle.init, timeout);
+        CURL4MCodeType timeout(CURL4M& multi_handle, long* timeout) noexcept {
+            return match::to(curl_multi_timeout(multi_handle.init, timeout));
         }
 
-        __CURLMcode poll(CURL4M& multi_handle,
+        CURL4MCodeType poll(CURL4M& multi_handle,
                          __curl_waitfd extra_fds[],
                          unsigned extra_nfds,
                          int timeout_ms,
                          int* numfds) noexcept {
-            return curl_multi_poll(multi_handle.init, extra_fds, extra_nfds, timeout_ms, numfds);
+            return match::to(curl_multi_poll(multi_handle.init, extra_fds, extra_nfds, timeout_ms, numfds));
         }
 
-        __CURLMcode wait(CURL4M& multi_handle, 
+        CURL4MCodeType wait(CURL4M& multi_handle,
                          __curl_waitfd extra_fds[],
                          unsigned extra_nfds,
                          int timeout_ms,
                          int* numfds) noexcept {
-            return curl_multi_wait(multi_handle.init, extra_fds, extra_nfds, timeout_ms, numfds);
+            return match::to(curl_multi_wait(multi_handle.init, extra_fds, extra_nfds, timeout_ms, numfds));
         }
 
-        __CURLMcode wakeup(CURL4M& multi_handle) noexcept {
-            return curl_multi_wakeup(multi_handle.init);
+        CURL4MCodeType wakeup(CURL4M& multi_handle) noexcept {
+            return match::to(curl_multi_wakeup(multi_handle.init));
         }
     }
 
