@@ -50,6 +50,60 @@ namespace curl4 {
         ~CURL4() {
             curl_easy_cleanup(this->init);
         }
+
+        void cleanup() noexcept {
+            curl_easy_cleanup(this->init);
+        }
+
+        CURL4 duphandle() noexcept {
+            return CURL4 { .init = curl_easy_duphandle(this->init) };
+        }
+
+        std::string escape(const std::string str, unsigned length) noexcept {
+            return std::string(curl_easy_escape(this->init, str.c_str(), length));
+        }
+
+        template<typename... Param>
+        CURLcode getinfo(CURLINFO info, Param... args) noexcept {
+            return curl_easy_getinfo(this->init, info, (args, ...));
+        }
+
+        CURL4 initialize() noexcept {
+            return CURL4 { .init = curl_easy_init() };
+        }
+
+        template<typename Buffer>
+        CURLcode recv(Buffer* buffer, 
+                      std::size_t buffer_length, 
+                      std::size_t* n) noexcept {
+            return curl_easy_recv(this->init, buffer, buffer_length, n);
+        }
+        
+        void reset() noexcept {
+            curl_easy_reset(this->init);
+        }
+
+        template<typename Buffer>
+        CURLcode send(const Buffer* buffer, 
+                      std::size_t buffer_length,
+                      std::size_t* n) noexcept {
+            return curl_easy_send(this->init, buffer, buffer_length, n);
+        }
+
+        template<typename Param>
+        CURLcode setopt(CURLoption option, Param parameter) noexcept {
+            return curl_easy_setopt(this->init, option, parameter);
+        }
+
+        std::string unescape(std::string url, 
+                            unsigned inlength, 
+                            int* outlength) noexcept {
+            return curl_easy_unescape(this->init, url.c_str(), inlength, outlength);
+        } 
+
+        CURLcode upkeep() noexcept {
+            return curl_easy_upkeep(this->init);
+        }
     };
 
     namespace easy {
