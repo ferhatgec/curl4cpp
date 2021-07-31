@@ -20,12 +20,9 @@ int main() {
         curl4::easy::setopt(init, CURLOPT_WRITEFUNCTION, writefunc);
         curl4::easy::setopt(init, CURLOPT_WRITEDATA, &val);
 
-
         CURLcode res = curl4::easy::perform(init);
 
         std::cout << val << '\n';
-
-        curl4::easy::cleanup(init);
     }
 
     return 0;

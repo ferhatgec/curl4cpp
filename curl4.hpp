@@ -41,15 +41,15 @@ using __curl_socket           = curl_socket_t;
 using __fd_set                = fd_set;
 using __curl_waitfd           = struct curl_waitfd;
 
-
-
 namespace curl4 {
     class CURL4 {
     public:
         CURL* init;
     public:
         CURL4() = default;
-        ~CURL4()= default;
+        ~CURL4() {
+            curl_easy_cleanup(this->init);
+        }
     };
 
     namespace easy {
@@ -800,8 +800,84 @@ namespace curl4 {
         using __CURLSHcode   = CURLSHcode;
         using __CURLSHoption = CURLSHoption;
 
-        __CURLSHcode cleanup(__CURLSH* share_handle) noexcept {
-            return curl_share_cleanup(share_handle);
+        enum CURL4SHCodeType {
+            OK,
+            BAD_OPTION,
+            IN_USE,
+            INVALID,
+            NOMEM,
+            NOT_BUILT_IN,
+            LAST
+        };
+        
+        namespace match {
+            __CURLSHcode from(CURL4SHCodeType val) noexcept {
+                switch(val) {
+                    case CURL4SHCodeType::OK: {
+                        return CURLSHE_OK;
+                    }
+
+                    case CURL4SHCodeType::BAD_OPTION: {
+                        return CURLSHE_BAD_OPTION;
+                    }
+
+                    case CURL4SHCodeType::IN_USE: {
+                        return CURLSHE_IN_USE;
+                    }
+
+                    case CURL4SHCodeType::INVALID: {
+                        return CURLSHE_INVALID;
+                    }
+
+                    case CURL4SHCodeType::NOMEM: {
+                        return CURLSHE_NOMEM;
+                    }
+
+                    case CURL4SHCodeType::NOT_BUILT_IN: {
+                        return CURLSHE_NOT_BUILT_IN;
+                    }
+
+                    case CURL4SHCodeType::LAST: {
+                        return CURLSHE_LAST;
+                    }
+                } return CURLSHE_LAST;
+            }
+
+            CURL4SHCodeType to(__CURLSHcode val) noexcept {
+                switch(val) {
+                    case CURLSHE_OK: {
+                        return CURL4SHCodeType::OK;
+                    }
+
+                    case CURLSHE_BAD_OPTION: {
+                        return CURL4SHCodeType::BAD_OPTION;
+                    }
+
+                    case CURLSHE_IN_USE: {
+                        return CURL4SHCodeType::IN_USE;
+                    }
+
+                    case CURLSHE_INVALID: {
+                        return CURL4SHCodeType::INVALID;
+                    }
+
+                    case CURLSHE_NOMEM: {
+                        return CURL4SHCodeType::NOMEM;
+                    }
+
+                    case CURLSHE_NOT_BUILT_IN: {
+                        return CURL4SHCodeType::NOT_BUILT_IN;
+                    }
+
+                    case CURLSHE_LAST: {
+                        return CURL4SHCodeType::LAST;
+                    }
+                } return CURL4SHCodeType::LAST;
+            }
+        }
+
+        CURL4SHCodeType cleanup(__CURLSH* share_handle) noexcept {
+            return match::to(curl_share_cleanup(share_handle));
         }
 
         __CURLSH* init() noexcept {
@@ -809,12 +885,12 @@ namespace curl4 {
         }
 
         template<typename Param>
-        __CURLSHcode setopt(__CURLSH* share, CURLSHoption option, Param parameter) noexcept {
-            return curl_share_setopt(share, option, parameter);
+        CURL4SHCodeType setopt(__CURLSH* share, CURLSHoption option, Param parameter) noexcept {
+            return match::to(curl_share_setopt(share, option, parameter));
         }
 
-        const std::string strerror(__CURLSHcode errornum) noexcept {
-            return std::string(curl_share_strerror(errornum));
+        const std::string strerror(CURL4SHCodeType errornum) noexcept {
+            return std::string(curl_share_strerror(match::from(errornum)));
         }
     }
 
@@ -1062,11 +1138,6 @@ namespace curl4 {
             };
         }
     }
-    /*
-            const std::string zstd_version;
-            const std::string hyper_version;
-            const std::string gsasl_version;
-    */
 
     void free(char*& ptr) noexcept {
         curl_free(ptr);
