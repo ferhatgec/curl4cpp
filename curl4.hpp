@@ -41,6 +41,8 @@ using __curl_socket           = curl_socket_t;
 using __fd_set                = fd_set;
 using __curl_waitfd           = struct curl_waitfd;
 
+
+
 namespace curl4 {
     class CURL4 {
     public:
@@ -515,6 +517,47 @@ namespace curl4 {
         using __CURLMSG   = CURLMSG;
         using __CURLMoption = CURLMoption;
 
+        enum class CURL4MsgType {
+            MSG_NONE,
+            MSG_DONE,
+            MSG_LAST
+        };
+
+
+        namespace match {
+            __CURLMSG from(CURL4MsgType val) noexcept {
+                switch(val) {
+                    case CURL4MsgType::MSG_NONE: {
+                        return CURLMSG_NONE;
+                    }
+
+                    case CURL4MsgType::MSG_DONE: {
+                        return CURLMSG_DONE;
+                    }
+
+                    case CURL4MsgType::MSG_LAST: {
+                        return CURLMSG_LAST;
+                    }
+                } return CURLMSG_NONE;
+            }
+
+            CURL4MsgType to(__CURLMSG val) noexcept {
+                switch(val) {
+                    case CURLMSG_NONE: {
+                        return CURL4MsgType::MSG_NONE;
+                    }
+
+                    case CURLMSG_DONE: {
+                        return CURL4MsgType::MSG_DONE;
+                    }
+
+                    case CURLMSG_LAST: {
+                        return CURL4MsgType::MSG_LAST;
+                    }
+                } return CURL4MsgType::MSG_NONE;
+            }
+        }
+
         class CURL4M {
         public:
             CURLM* init;
@@ -526,7 +569,7 @@ namespace curl4 {
         template<typename Value>
         class CURL4Msg {
         public:
-            __CURLMSG msg;
+            CURL4MsgType msg;
             CURL4* handle;
             
             union {
@@ -564,9 +607,9 @@ namespace curl4 {
             auto val = curl_multi_info_read(multi_handle.init, msgs_in_queue);
 
             return CURL4Msg<Value> {
-                .msg = val->msg,
+                .msg    = match::to(val->msg),
                 .handle = CURL4 { .init = val->easy_handle },
-                .data = val->data
+                .data   = val->data
             };
         }
 
