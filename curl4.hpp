@@ -663,7 +663,6 @@ namespace curl4 {
     }
 
     namespace version {
-        using __curl_version_info_data = curl_version_info_data;
         using __CURLversion            = CURLversion;
 
         enum class CURL4Version {
@@ -677,6 +676,53 @@ namespace curl4 {
             EIGHTH,
             NINTH,
             LAST
+        };
+
+        class CURL4VersionInfoData {
+        public:
+            CURL4Version age;
+
+            const std::string version;
+            unsigned version_num;
+            
+            const std::string host;
+            int features;
+            
+            std::string ssl_version;
+            long ssl_version_num;
+
+            const std::string libz_version;
+            const std::string protocols;
+
+            const std::string ares;
+            int ares_num;
+
+            const std::string libidn;
+
+            int iconv_ver_num;
+
+            const std::string libssh_version;
+
+            unsigned brotli_ver_num;
+
+            const std::string brotli_version;
+
+            unsigned nghttp2_ver_num;
+
+            const std::string nghttp2_version;
+            const std::string quic_version;
+
+            const std::string cainfo;
+            const std::string capath;
+
+            unsigned zstd_version_num;
+
+            const std::string zstd_version;
+            const std::string hyper_version;
+            // const std::string gsasl_version;
+        public:
+            CURL4VersionInfoData() = default;
+            ~CURL4VersionInfoData()= default;
         };
 
         namespace match {
@@ -723,16 +769,106 @@ namespace curl4 {
                     }
                 } return CURLVERSION_LAST;
             }
+
+            CURL4Version to(__CURLversion val) noexcept {
+                switch(val) {
+                    case CURLVERSION_FIRST: {
+                        return CURL4Version::FIRST;
+                    }
+
+                    case CURLVERSION_SECOND: {
+                        return CURL4Version::SECOND;
+                    }
+
+                    case CURLVERSION_THIRD: {
+                        return CURL4Version::THIRD;
+                    }
+
+                    case CURLVERSION_FOURTH: {
+                        return CURL4Version::FOURTH;
+                    }
+
+                    case CURLVERSION_FIFTH: {
+                        return CURL4Version::FIFTH;
+                    }
+
+                    case CURLVERSION_SIXTH: {
+                        return CURL4Version::SIXTH;
+                    }
+
+                    case CURLVERSION_SEVENTH: {
+                        return CURL4Version::SEVENTH;
+                    }
+
+                    case CURLVERSION_EIGHTH: {
+                        return CURL4Version::EIGHTH;
+                    }
+
+                    case CURLVERSION_NINTH: {
+                        return CURL4Version::NINTH;
+                    }
+
+                    case CURLVERSION_LAST: {
+                        return CURL4Version::LAST;
+                    }
+                } return CURL4Version::LAST;
+            }
         }
 
         std::string version() noexcept {
             return std::string(curl_version());
         }
 
-        __curl_version_info_data* version_info(CURL4Version age) noexcept {
-            return curl_version_info(match::from(age));
+        CURL4VersionInfoData version_info(CURL4Version age) noexcept {
+            auto val = curl_version_info(match::from(age));
+
+            return CURL4VersionInfoData {
+                .age              = match::to(val->age),
+                
+                .version          = std::string(val->version),
+                .version_num      = val->version_num,
+
+                .host             = std::string(val->host),
+                .features         = val->features,
+
+                .ssl_version      = std::string(val->ssl_version),
+                .ssl_version_num  = val->ssl_version_num,
+
+                .libz_version     = std::string(val->libz_version),
+                .protocols        = std::string(reinterpret_cast<const char*>(val->protocols)),
+
+                .ares             = std::string(val->ares),
+                .ares_num         = val->ares_num,
+
+                .libidn           = std::string(val->libidn),
+
+                .iconv_ver_num    = val->iconv_ver_num,
+
+                .libssh_version   = std::string(val->libssh_version),
+                .brotli_ver_num   = val->brotli_ver_num,
+
+                .brotli_version   = std::string(val->brotli_version),
+
+                .nghttp2_ver_num  = val->nghttp2_ver_num,
+
+                .nghttp2_version  = std::string(val->nghttp2_version),
+                .quic_version     = std::string(val->quic_version),
+
+                .cainfo           = std::string(val->cainfo),
+                .capath           = std::string(val->capath),
+
+                .zstd_version_num = val->zstd_ver_num,
+
+                .zstd_version     = std::string(val->zstd_version),
+                .hyper_version    = std::string(val->hyper_version)
+            };
         }
     }
+    /*
+            const std::string zstd_version;
+            const std::string hyper_version;
+            const std::string gsasl_version;
+    */
 
     void free(char*& ptr) noexcept {
         curl_free(ptr);
