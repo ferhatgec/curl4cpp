@@ -322,6 +322,11 @@ namespace curl4 {
         CURLcode upkeep(CURL4& handle) noexcept {
             return curl_easy_upkeep(handle.init);
         }
+
+        std::size_t writefunc(void *ptr, std::size_t size, std::size_t nmemb, std::string* s) noexcept {
+            s->append(static_cast<char*>(ptr), size * nmemb);
+            return size * nmemb;
+        }
     }
 
     namespace form {
