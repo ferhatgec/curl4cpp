@@ -800,13 +800,23 @@ namespace curl4 {
         using __CURLSHcode   = CURLSHcode;
         using __CURLSHoption = CURLSHoption;
 
-        enum CURL4SHCodeType {
+        enum class CURL4SHCodeType {
             OK,
             BAD_OPTION,
             IN_USE,
             INVALID,
             NOMEM,
             NOT_BUILT_IN,
+            LAST
+        };
+
+        enum class CURL4SHOptionType {
+            NONE,
+            SHARE,
+            UNSHARE,
+            LOCKFUNC,
+            UNLOCKFUNC,
+            USERDATA,
             LAST
         };
         
@@ -873,6 +883,70 @@ namespace curl4 {
                         return CURL4SHCodeType::LAST;
                     }
                 } return CURL4SHCodeType::LAST;
+            }
+
+            __CURLSHoption from(CURL4SHOptionType val) noexcept {
+                switch(val) {
+                    case CURL4SHOptionType::NONE: {
+                        return CURLSHOPT_NONE;
+                    }
+
+                    case CURL4SHOptionType::SHARE: {
+                        return CURLSHOPT_SHARE;
+                    }
+
+                    case CURL4SHOptionType::UNSHARE: {
+                        return CURLSHOPT_UNSHARE;
+                    }
+
+                    case CURL4SHOptionType::LOCKFUNC: {
+                        return CURLSHOPT_LOCKFUNC;
+                    }
+
+                    case CURL4SHOptionType::UNLOCKFUNC: {
+                        return CURLSHOPT_UNLOCKFUNC;
+                    }
+
+                    case CURL4SHOptionType::USERDATA: {
+                        return CURLSHOPT_USERDATA;
+                    }
+
+                    case CURL4SHOptionType::LAST: {
+                        return CURLSHOPT_LAST;
+                    }
+                } return CURLSHOPT_LAST;
+            }
+
+            CURL4SHOptionType to(__CURLSHoption val) noexcept {
+                switch(val) {
+                    case CURLSHOPT_NONE: {
+                        return CURL4SHOptionType::NONE;
+                    }
+
+                    case CURLSHOPT_SHARE: {
+                        return CURL4SHOptionType::SHARE;
+                    }
+
+                    case CURLSHOPT_UNSHARE: {
+                        return CURL4SHOptionType::UNSHARE;
+                    }
+
+                    case CURLSHOPT_LOCKFUNC: {
+                        return CURL4SHOptionType::LOCKFUNC;
+                    }
+
+                    case CURLSHOPT_UNLOCKFUNC: {
+                        return CURL4SHOptionType::USERDATA;
+                    }
+
+                    case CURLSHOPT_USERDATA: {
+                        return CURL4SHOptionType::USERDATA;
+                    }
+
+                    case CURLSHOPT_LAST: {
+                        return CURL4SHOptionType::LAST;
+                    }
+                } return CURL4SHOptionType::LAST;
             }
         }
 
