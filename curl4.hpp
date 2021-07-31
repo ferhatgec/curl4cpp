@@ -666,12 +666,71 @@ namespace curl4 {
         using __curl_version_info_data = curl_version_info_data;
         using __CURLversion            = CURLversion;
 
+        enum class CURL4Version {
+            FIRST,
+            SECOND,
+            THIRD,
+            FOURTH,
+            FIFTH,
+            SIXTH,
+            SEVENTH,
+            EIGHTH,
+            NINTH,
+            LAST
+        };
+
+        namespace match {
+            __CURLversion from(CURL4Version val) noexcept {
+                switch(val) {
+                    case CURL4Version::FIRST: {
+                        return CURLVERSION_FIRST;
+                    }
+
+                    case CURL4Version::SECOND: {
+                        return CURLVERSION_SECOND;
+                    }
+
+                    case CURL4Version::THIRD: {
+                        return CURLVERSION_THIRD;
+                    }
+
+                    case CURL4Version::FOURTH: {
+                        return CURLVERSION_FOURTH;
+                    }
+
+                    case CURL4Version::FIFTH: {
+                        return CURLVERSION_FIFTH;
+                    }
+
+                    case CURL4Version::SIXTH: {
+                        return CURLVERSION_SIXTH;
+                    }
+
+                    case CURL4Version::SEVENTH: {
+                        return CURLVERSION_SEVENTH;
+                    }
+
+                    case CURL4Version::EIGHTH: {
+                        return CURLVERSION_EIGHTH;
+                    }
+
+                    case CURL4Version::NINTH: {
+                        return CURLVERSION_NINTH;
+                    }
+
+                    case CURL4Version::LAST: {
+                        return CURLVERSION_LAST;
+                    }
+                } return CURLVERSION_LAST;
+            }
+        }
+
         std::string version() noexcept {
             return std::string(curl_version());
         }
 
-        __curl_version_info_data* version_info(__CURLversion age) noexcept {
-            return curl_version_info(age);
+        __curl_version_info_data* version_info(CURL4Version age) noexcept {
+            return curl_version_info(match::from(age));
         }
     }
 
