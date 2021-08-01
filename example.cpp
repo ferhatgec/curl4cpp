@@ -8,10 +8,12 @@
 int main() {
     curl4::CURL4 init = curl4::easy::init();
 
+    std::string url = "https://raw.githubusercontent.com/ferhatgec/bufsize/master/example.cpp";
+
     {
         std::string val;
 
-        init.setopt(CURLOPT_URL, "https://raw.githubusercontent.com/ferhatgec/bufsize/master/example.cpp");
+        init.setopt(CURLOPT_URL, url);
         init.setopt(CURLOPT_WRITEFUNCTION, curl4::easy::writefunc);
         init.setopt(CURLOPT_WRITEDATA, &val);
 

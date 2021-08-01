@@ -92,6 +92,10 @@ namespace curl4 {
 
         template<typename Param>
         CURLcode setopt(CURLoption option, Param parameter) noexcept {
+            if constexpr (std::is_same_v<Param, std::string>) {
+                return curl_easy_setopt(this->init, option, parameter.c_str());
+            }
+
             return curl_easy_setopt(this->init, option, parameter);
         }
 
@@ -305,7 +309,11 @@ namespace curl4 {
 
         template<typename Param>
         CURLcode setopt(CURL4& handle, CURLoption option, Param parameter) noexcept {
-            return curl_easy_setopt(handle.init, option, parameter);
+            if constexpr (std::is_same_v<Param, std::string>) {
+                return curl_easy_setopt(handle, option, parameter.c_str());
+            }
+
+            return curl_easy_setopt(handle, option, parameter);
         }
 
         const std::string strerror(CURLcode error) noexcept {
