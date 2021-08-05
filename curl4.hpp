@@ -73,18 +73,18 @@ namespace curl4 {
         }
 
         template<typename Buffer>
-        CURLcode recv(Buffer* buffer, 
-                      std::size_t buffer_length, 
+        CURLcode recv(Buffer* buffer,
+                      std::size_t buffer_length,
                       std::size_t* n) noexcept {
             return curl_easy_recv(this->init, buffer, buffer_length, n);
         }
-        
+
         void reset() noexcept {
             curl_easy_reset(this->init);
         }
 
         template<typename Buffer>
-        CURLcode send(const Buffer* buffer, 
+        CURLcode send(const Buffer* buffer,
                       std::size_t buffer_length,
                       std::size_t* n) noexcept {
             return curl_easy_send(this->init, buffer, buffer_length, n);
@@ -97,11 +97,11 @@ namespace curl4 {
             } else { return curl_easy_setopt(this->init, option, parameter); }
         }
 
-        std::string unescape(std::string url, 
-                            unsigned inlength, 
-                            int* outlength) noexcept {
+        std::string unescape(std::string url,
+                             unsigned inlength,
+                             int* outlength) noexcept {
             return curl_easy_unescape(this->init, url.c_str(), inlength, outlength);
-        } 
+        }
 
         CURLcode upkeep() noexcept {
             return curl_easy_upkeep(this->init);
@@ -238,7 +238,7 @@ namespace curl4 {
         Option option_by_id(CURLoption id) noexcept {
             auto val = const_cast<__curl_easyoption*>(curl_easy_option_by_id(id));
 
-            return Option { 
+            return Option {
                 .name = std::string(val->name),
                 .id   = val->id,
                 .type = match::to(val->type),
@@ -286,20 +286,20 @@ namespace curl4 {
         }
 
         template<typename Buffer>
-        CURLcode recv(CURL4& handle, 
-                      Buffer* buffer, 
-                      std::size_t buffer_length, 
+        CURLcode recv(CURL4& handle,
+                      Buffer* buffer,
+                      std::size_t buffer_length,
                       std::size_t* n) noexcept {
             return curl_easy_recv(handle.init, buffer, buffer_length, n);
         }
-        
+
         void reset(CURL4& handle) noexcept {
             curl_easy_reset(handle.init);
         }
 
         template<typename Buffer>
-        CURLcode send(CURL4& handle, 
-                      const Buffer* buffer, 
+        CURLcode send(CURL4& handle,
+                      const Buffer* buffer,
                       std::size_t buffer_length,
                       std::size_t* n) noexcept {
             return curl_easy_send(handle.init, buffer, buffer_length, n);
@@ -316,12 +316,12 @@ namespace curl4 {
             return std::string(curl_easy_strerror(error));
         }
 
-        std::string unescape(CURL4& handle, 
-                             std::string url, 
-                            unsigned inlength, 
-                            int* outlength) noexcept {
+        std::string unescape(CURL4& handle,
+                             std::string url,
+                             unsigned inlength,
+                             int* outlength) noexcept {
             return curl_easy_unescape(handle.init, url.c_str(), inlength, outlength);
-        } 
+        }
 
         CURLcode upkeep(CURL4& handle) noexcept {
             return curl_easy_upkeep(handle.init);
@@ -353,11 +353,11 @@ namespace curl4 {
 
     // Not thread safe (for C++20 there will be new date utils)
     #ifdef CURL4CPP_ENABLE_CTIME
-        namespace date {
-            std::time_t get(std::string date, std::time_t* now) noexcept {
-                return curl_getdate(date.data(), now);
-            }
+    namespace date {
+        std::time_t get(std::string date, std::time_t* now) noexcept {
+            return curl_getdate(date.data(), now);
         }
+    }
     #endif // CURL4CPP_ENABLE_CTIME
 
     namespace global {
@@ -483,7 +483,7 @@ namespace curl4 {
 
             CURL4SSL set(SSLBackendTypes __id, std::string name, SSLBackend*** __avail) noexcept {
                 auto __val = ***__avail;
-                
+
                 curl_ssl_backend*** val;
 
                 ***val = curl_ssl_backend {
@@ -492,7 +492,7 @@ namespace curl4 {
                 };
 
                 return match::to(curl_global_sslset(ssl::from(__id),
-                                          name.c_str(), const_cast<const curl_ssl_backend***>(val)));
+                                                    name.c_str(), const_cast<const curl_ssl_backend***>(val)));
             }
         }
 
@@ -526,13 +526,13 @@ namespace curl4 {
         }
 
         CURLcode data(__curl_mimepart* part, const std::string data, std::size_t data_size) noexcept {
-            return curl_mime_data(part, data.c_str(), data_size);           
+            return curl_mime_data(part, data.c_str(), data_size);
         }
 
         template<typename Param>
-        CURLcode data_cb(__curl_mimepart* part, 
+        CURLcode data_cb(__curl_mimepart* part,
                          __curl_off_t* data_size,
-                         __curl_read_callback readfunc, 
+                         __curl_read_callback readfunc,
                          __curl_seek_callback seekfunc,
                          __curl_free_callback freefunc, Param arg) noexcept {
             return curl_mime_data_cb(part, data_size, readfunc, seekfunc, freefunc, arg);
@@ -761,7 +761,7 @@ namespace curl4 {
         public:
             CURL4MsgType msg;
             CURL4* handle;
-            
+
             union {
                 Value* whatever;
                 CURLcode result;
@@ -785,10 +785,10 @@ namespace curl4 {
         }
 
         CURL4MCodeType fdset(CURL4M& multi_handle,
-                          __fd_set* read_fd_set,
-                          __fd_set* write_fd_set,
-                          __fd_set* exc_fd_set,
-                          int* max_fd) noexcept {
+                             __fd_set* read_fd_set,
+                             __fd_set* write_fd_set,
+                             __fd_set* exc_fd_set,
+                             int* max_fd) noexcept {
             return match::to(curl_multi_fdset(multi_handle.init, read_fd_set, write_fd_set, exc_fd_set, max_fd));
         }
 
@@ -812,7 +812,7 @@ namespace curl4 {
         CURL4MCodeType perform(CURL4M& multi_handle, int* running_handles) noexcept {
             return match::to(curl_multi_perform(multi_handle.init, running_handles));
         }
-        
+
         CURL4MCodeType remove_handle(CURL4M& mutli_handle, CURL4& handle) noexcept {
             return match::to(curl_multi_remove_handle(mutli_handle.init, handle.init));
         }
@@ -823,9 +823,9 @@ namespace curl4 {
         }
 
         CURL4MCodeType socket_action(CURL4M& multi_handle,
-                                  __curl_socket sockfd, 
-                                  int ev_bitmask, 
-                                  int* running_handles) noexcept {
+                                     __curl_socket sockfd,
+                                     int ev_bitmask,
+                                     int* running_handles) noexcept {
             return match::to(curl_multi_socket_action(multi_handle.init, sockfd, ev_bitmask, running_handles));
         }
 
@@ -838,18 +838,18 @@ namespace curl4 {
         }
 
         CURL4MCodeType poll(CURL4M& multi_handle,
-                         __curl_waitfd extra_fds[],
-                         unsigned extra_nfds,
-                         int timeout_ms,
-                         int* numfds) noexcept {
+                            __curl_waitfd extra_fds[],
+                            unsigned extra_nfds,
+                            int timeout_ms,
+                            int* numfds) noexcept {
             return match::to(curl_multi_poll(multi_handle.init, extra_fds, extra_nfds, timeout_ms, numfds));
         }
 
         CURL4MCodeType wait(CURL4M& multi_handle,
-                         __curl_waitfd extra_fds[],
-                         unsigned extra_nfds,
-                         int timeout_ms,
-                         int* numfds) noexcept {
+                            __curl_waitfd extra_fds[],
+                            unsigned extra_nfds,
+                            int timeout_ms,
+                            int* numfds) noexcept {
             return match::to(curl_multi_wait(multi_handle.init, extra_fds, extra_nfds, timeout_ms, numfds));
         }
 
@@ -882,7 +882,7 @@ namespace curl4 {
             USERDATA,
             LAST
         };
-        
+
         namespace match {
             __CURLSHcode from(CURL4SHCodeType val) noexcept {
                 switch(val) {
@@ -1065,7 +1065,7 @@ namespace curl4 {
             return curl_url_get(url, what, part, flags);
         }
 
-        __CURLUcode set(__CURLU* url, 
+        __CURLUcode set(__CURLU* url,
                         __CURLUPart part,
                         const std::string content,
                         unsigned flags) noexcept {
@@ -1085,7 +1085,11 @@ namespace curl4 {
             SIXTH,
             SEVENTH,
             EIGHTH,
-            NINTH,
+
+            #ifdef CURLVERSION_NINTH
+                NINTH,
+            #endif
+
             LAST
         };
 
@@ -1095,10 +1099,10 @@ namespace curl4 {
 
             const std::string version;
             unsigned version_num;
-            
+
             const std::string host;
             int features;
-            
+
             std::string ssl_version;
             long ssl_version_num;
 
@@ -1171,9 +1175,11 @@ namespace curl4 {
                         return CURLVERSION_EIGHTH;
                     }
 
-                    case CURL4Version::NINTH: {
-                        return CURLVERSION_NINTH;
-                    }
+                    #ifdef CURLVERSION_NINTH
+                        case CURL4Version::NINTH: {
+                            return CURLVERSION_NINTH;
+                        }
+                    #endif
 
                     case CURL4Version::LAST: {
                         return CURLVERSION_LAST;
@@ -1215,9 +1221,11 @@ namespace curl4 {
                         return CURL4Version::EIGHTH;
                     }
 
-                    case CURLVERSION_NINTH: {
-                        return CURL4Version::NINTH;
-                    }
+                    #ifdef CURLVERSION_NINTH
+                        case CURLVERSION_NINTH: {
+                            return CURL4Version::NINTH;
+                        }
+                    #endif
 
                     case CURLVERSION_LAST: {
                         return CURL4Version::LAST;
@@ -1235,7 +1243,7 @@ namespace curl4 {
 
             return CURL4VersionInfoData {
                 .age              = match::to(val->age),
-                
+
                 .version          = std::string(val->version),
                 .version_num      = val->version_num,
 
@@ -1271,7 +1279,7 @@ namespace curl4 {
                 .zstd_version_num = val->zstd_ver_num,
 
                 .zstd_version     = std::string(val->zstd_version),
-                .hyper_version    = std::string(val->hyper_version)
+                // .hyper_version    = std::string(val->hyper_version)
             };
         }
     }
