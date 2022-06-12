@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2021 Ferhat Geçdoğan All Rights Reserved.
+// Copyright (c) 2021-2022 Ferhat Geçdoğan All Rights Reserved.
 // Distributed under the terms of the MIT License.
 //
 // curl4cpp - work-in-progress single header libcURL wrapper
@@ -56,7 +56,13 @@ namespace curl4 {
         }
 
         CURL4 duphandle() noexcept {
-            return CURL4 { .init = curl_easy_duphandle(this->init) };
+            #if __cplusplus >= 202002L
+                CURL4 init;
+                init.init = curl_easy_duphandle(this->init);
+                return init;
+            #else
+                return CURL4 { .init = curl_easy_duphandle(this->init) };
+            #endif
         }
 
         std::string escape(const std::string str, unsigned length) noexcept {
@@ -69,7 +75,13 @@ namespace curl4 {
         }
 
         CURL4 initialize() noexcept {
-            return CURL4 { .init = curl_easy_init() };
+            #if __cplusplus >= 202002L
+                CURL4 init;
+                init.init = curl_easy_init();
+                return init;
+            #else
+                return CURL4 { .init = curl_easy_init() };
+            #endif
         }
 
         template<typename Buffer>
@@ -219,7 +231,13 @@ namespace curl4 {
         }
 
         CURL4 duphandle(CURL4& handle) noexcept {
-            return CURL4 { .init = curl_easy_duphandle(handle.init) };
+            #if __cplusplus >= 202002L
+                CURL4 init;
+                init.init = curl_easy_duphandle(handle.init);
+                return init;
+            #else
+                return CURL4 { .init = curl_easy_duphandle(handle.init) };
+            #endif
         }
 
         std::string escape(CURL4& handle, const std::string str, unsigned length) noexcept {
@@ -232,49 +250,89 @@ namespace curl4 {
         }
 
         CURL4 init() noexcept {
-            return CURL4 { .init = curl_easy_init() };
+            #if __cplusplus >= 202002L
+                CURL4 init;
+                init.init = curl_easy_init();
+                return init;
+            #else
+                return CURL4 { .init = curl_easy_init() };
+            #endif
         }
 
         Option option_by_id(CURLoption id) noexcept {
             auto val = const_cast<__curl_easyoption*>(curl_easy_option_by_id(id));
 
-            return Option {
-                .name = std::string(val->name),
-                .id   = val->id,
-                .type = match::to(val->type),
-                .flags= val->flags
-            };
+            #if __cplusplus >= 202002L
+                Option init;
+                init.name = std::string(val->name);
+                init.id   = val->id;
+                init.type = match::to(val->type);
+                init.flags= val->flags;
+                return init;
+            #else
+                return Option {
+                    .name = std::string(val->name),
+                    .id   = val->id,
+                    .type = match::to(val->type),
+                    .flags= val->flags
+                };
+            #endif
         }
 
         Option option_by_name(const std::string name) noexcept {
             auto val = const_cast<__curl_easyoption*>(curl_easy_option_by_name(name.c_str()));
 
-            return Option {
-                .name = std::string(val->name),
-                .id   = val->id,
-                .type = match::to(val->type),
-                .flags= val->flags
-            };
+            #if __cplusplus >= 202002L
+                Option init;
+                init.name = std::string(val->name);
+                init.id   = val->id;
+                init.type = match::to(val->type);
+                init.flags= val->flags;
+                return init;
+            #else
+                return Option {
+                    .name = std::string(val->name),
+                    .id   = val->id,
+                    .type = match::to(val->type),
+                    .flags= val->flags
+                };
+            #endif
         }
 
         Option option_next(const Option previous) noexcept {
             __curl_easyoption* value;
 
-            *value = __curl_easyoption {
-                .name = previous.name.c_str(),
-                .id   = previous.id,
-                .type = match::from(previous.type),
-                .flags= previous.flags
-            };
+            #if __cplusplus >= 202002L
+                value->name = previous.name.c_str();
+                value->id   = previous.id;
+                value->type = match::from(previous.type);
+                value->flags= previous.flags;
+            #else
+                *value = __curl_easyoption {
+                    .name = previous.name.c_str(),
+                    .id   = previous.id,
+                    .type = match::from(previous.type),
+                    .flags= previous.flags
+                };
+            #endif
 
             auto val = const_cast<__curl_easyoption*>(curl_easy_option_next(value));
 
-            return Option {
-                .name = std::string(val->name),
-                .id   = val->id,
-                .type = match::to(val->type),
-                .flags= val->flags
-            };
+            #if __cplusplus >= 202002L
+                Option init;
+                init.name = std::string(val->name);
+                init.id   = val->id;
+                init.type = match::to(val->type);
+                init.flags= val->flags;
+                return init;
+            #else
+                return Option {
+                    .name = std::string(val->name),
+                    .id   = val->id,
+                    .type = match::to(val->type),
+                    .flags= val->flags
+                };
+            #endif
         }
 
         CURLcode pause(CURL4& handle, int bitmask) noexcept {
@@ -486,10 +544,15 @@ namespace curl4 {
 
                 curl_ssl_backend*** val;
 
-                ***val = curl_ssl_backend {
-                    .id = ssl::from(__val.id),
-                    .name = __val.name.c_str()
-                };
+                #if __cplusplus >= 202002L
+                    (**val)->id  = ssl::from(__val.id);
+                    (**val)->name= __val.name.c_str();
+                #else
+                    ***val = curl_ssl_backend {
+                        .id = ssl::from(__val.id),
+                        .name = __val.name.c_str()
+                    };
+                #endif
 
                 return match::to(curl_global_sslset(ssl::from(__id),
                                                     name.c_str(), const_cast<const curl_ssl_backend***>(val)));
@@ -796,17 +859,32 @@ namespace curl4 {
         CURL4Msg<Value> info_read(CURL4M& multi_handle, int* msgs_in_queue) noexcept {
             auto val = curl_multi_info_read(multi_handle.init, msgs_in_queue);
 
-            return CURL4Msg<Value> {
-                .msg    = match::to(val->msg),
-                .handle = CURL4 { .init = val->easy_handle },
-                .data   = val->data
-            };
+            #if __cplusplus >= 202002L
+                CURL4Msg<Value> init;
+                CURL4 __init__; init.init = val->easy_handle;
+                init.msg   = match::to(val->msg);
+                init.handle= __init__;
+                init.data  = val->data;
+                return init;
+            #else
+                return CURL4Msg<Value> {
+                    .msg    = match::to(val->msg),
+                    .handle = CURL4 { .init = val->easy_handle },
+                    .data   = val->data
+                };
+            #endif
         }
 
         CURL4M init() noexcept {
-            return CURL4M {
-                .init = curl_multi_init()
-            };
+            #if __cplusplus >= 202002L
+                CURL4M init;
+                init.init = curl_multi_init();
+                return init;
+            #else
+                return CURL4M {
+                    .init = curl_multi_init()
+                };
+            #endif
         }
 
         CURL4MCodeType perform(CURL4M& multi_handle, int* running_handles) noexcept {
@@ -1097,43 +1175,43 @@ namespace curl4 {
         public:
             CURL4Version age;
 
-            const std::string version;
+            std::string version;
             unsigned version_num;
 
-            const std::string host;
+            std::string host;
             int features;
 
             std::string ssl_version;
             long ssl_version_num;
 
-            const std::string libz_version;
-            const std::string protocols;
+            std::string libz_version;
+            std::string protocols;
 
-            const std::string ares;
+            std::string ares;
             int ares_num;
 
-            const std::string libidn;
+            std::string libidn;
 
             int iconv_ver_num;
 
-            const std::string libssh_version;
+            std::string libssh_version;
 
             unsigned brotli_ver_num;
 
-            const std::string brotli_version;
+            std::string brotli_version;
 
             unsigned nghttp2_ver_num;
 
-            const std::string nghttp2_version;
-            const std::string quic_version;
+            std::string nghttp2_version;
+            std::string quic_version;
 
-            const std::string cainfo;
-            const std::string capath;
+            std::string cainfo;
+            std::string capath;
 
             unsigned zstd_version_num;
 
-            const std::string zstd_version;
-            const std::string hyper_version;
+            std::string zstd_version;
+            std::string hyper_version;
             // const std::string gsasl_version;
         public:
             CURL4VersionInfoData() = default;
@@ -1241,46 +1319,90 @@ namespace curl4 {
         CURL4VersionInfoData version_info(CURL4Version age) noexcept {
             auto val = curl_version_info(match::from(age));
 
-            return CURL4VersionInfoData {
-                .age              = match::to(val->age),
+            #if __cplusplus >= 202002L
+                CURL4VersionInfoData init;
 
-                .version          = std::string(val->version),
-                .version_num      = val->version_num,
+                init.age              = match::to(val->age);
 
-                .host             = std::string(val->host),
-                .features         = val->features,
+                init.version          = std::string(val->version);
+                init.version_num      = val->version_num;
 
-                .ssl_version      = std::string(val->ssl_version),
-                .ssl_version_num  = val->ssl_version_num,
+                init.host             = std::string(val->host);
+                init.features         = val->features;
 
-                .libz_version     = std::string(val->libz_version),
-                .protocols        = std::string(reinterpret_cast<const char*>(val->protocols)),
+                init.ssl_version      = std::string(val->ssl_version);
+                init.ssl_version_num  = val->ssl_version_num;
 
-                .ares             = std::string(val->ares),
-                .ares_num         = val->ares_num,
+                init.libz_version     = std::string(val->libz_version);
+                init.protocols        = std::string(reinterpret_cast<const char*>(val->protocols));
 
-                .libidn           = std::string(val->libidn),
+                init.ares             = std::string(val->ares);
+                init.ares_num         = val->ares_num;
 
-                .iconv_ver_num    = val->iconv_ver_num,
+                init.libidn           = std::string(val->libidn);
 
-                .libssh_version   = std::string(val->libssh_version),
-                .brotli_ver_num   = val->brotli_ver_num,
+                init.iconv_ver_num    = val->iconv_ver_num;
 
-                .brotli_version   = std::string(val->brotli_version),
+                init.libssh_version   = std::string(val->libssh_version);
+                init.brotli_ver_num   = val->brotli_ver_num;
 
-                .nghttp2_ver_num  = val->nghttp2_ver_num,
+                init.brotli_version   = std::string(val->brotli_version);
 
-                .nghttp2_version  = std::string(val->nghttp2_version),
-                .quic_version     = std::string(val->quic_version),
+                init.nghttp2_ver_num  = val->nghttp2_ver_num;
 
-                .cainfo           = std::string(val->cainfo),
-                .capath           = std::string(val->capath),
+                init.nghttp2_version  = std::string(val->nghttp2_version);
+                init.quic_version     = std::string(val->quic_version);
 
-                .zstd_version_num = val->zstd_ver_num,
+                init.cainfo           = std::string(val->cainfo);
+                init.capath           = std::string(val->capath);
 
-                .zstd_version     = std::string(val->zstd_version),
-                // .hyper_version    = std::string(val->hyper_version)
-            };
+                init.zstd_version_num = val->zstd_ver_num;
+
+                init.zstd_version     = std::string(val->zstd_version);
+
+                return init;
+            #else
+                return CURL4VersionInfoData {
+                    .age              = match::to(val->age),
+
+                    .version          = std::string(val->version),
+                    .version_num      = val->version_num,
+
+                    .host             = std::string(val->host),
+                    .features         = val->features,
+
+                    .ssl_version      = std::string(val->ssl_version),
+                    .ssl_version_num  = val->ssl_version_num,
+
+                    .libz_version     = std::string(val->libz_version),
+                    .protocols        = std::string(reinterpret_cast<const char*>(val->protocols)),
+
+                    .ares             = std::string(val->ares),
+                    .ares_num         = val->ares_num,
+
+                    .libidn           = std::string(val->libidn),
+
+                    .iconv_ver_num    = val->iconv_ver_num,
+
+                    .libssh_version   = std::string(val->libssh_version),
+                    .brotli_ver_num   = val->brotli_ver_num,
+
+                    .brotli_version   = std::string(val->brotli_version),
+
+                    .nghttp2_ver_num  = val->nghttp2_ver_num,
+
+                    .nghttp2_version  = std::string(val->nghttp2_version),
+                    .quic_version     = std::string(val->quic_version),
+
+                    .cainfo           = std::string(val->cainfo),
+                    .capath           = std::string(val->capath),
+
+                    .zstd_version_num = val->zstd_ver_num,
+
+                    .zstd_version     = std::string(val->zstd_version),
+                    // .hyper_version    = std::string(val->hyper_version)
+                };
+            #endif
         }
     }
 
